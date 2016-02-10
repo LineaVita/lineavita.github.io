@@ -1,0 +1,106 @@
+<html lang="en" ng-app="vita">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">        
+    
+    <!-- 3rd Party CSS -->
+    <link href="bower_components/angular-material/angular-material.min.css" rel="stylesheet">
+    
+    <!-- App CSS -->
+    <link href="css/app.css" rel="stylesheet">
+    
+    <title>Vita</title>
+  </head>  
+  <body ng-cloak>
+    <md-toolbar layout="row" id="AppHeader">
+      <div class="md-toolbar-tools">
+        <md-menu md-offset="0 -7"  hide-gt-xs>
+          <md-button aria-label="Open menu" class="md-icon-button" ng-click="$mdOpenMenu($event)">
+            <img src="img/icons/ic_menu_black_24px.svg"></img>
+          </md-button>
+          <md-menu-content width="2">
+            <md-menu-item>
+              <md-button class="md-raised" aria-label="Home" ng-href="#home" >
+                Home
+              </md-button>
+            </md-menu-item>
+            <md-menu-item>
+              <md-button class="md-raised" aria-label="Post" ng-href="#post" >
+                Post
+              </md-button>
+            </md-menu-item>
+            <md-menu-item>
+              <md-button class="md-raised" aria-label="Friends" ng-href="#friends" >
+                Friends
+              </md-button>
+            </md-menu-item>
+            <md-menu-item>
+              <md-button class="md-raised" aria-label="Configure" ng-href="#configure" >
+                Configure
+              </md-button>
+            </md-menu-item>
+          </md-menu-content>
+        </md-menu>
+        <a ng-href="#home"><span class="md-display-1">Vita</span></a>
+        <span flex="5"></span>
+        <md-button class="md-raised" aria-label="Post" ng-href="#post" hide show-gt-xs>
+          Post
+        </md-button>
+        <md-button class="md-raised" aria-label="Friends" ng-href="#friends" hide show-gt-xs>
+          Friends
+        </md-button>
+        <span flex></span>
+        <md-button class="md-raised" aria-label="Configure" ng-href="#configure" hide show-gt-xs>
+          Configure
+        </md-button>
+      </div>    
+    </md-toolbar>
+    <ng-view id="AppContent"></ng-view>
+    <div id="AppFooter" >
+        <div layout="row" layout-align="center center">
+          <div class="md-display-1">Powered by Vita</div>
+        </div>    
+    </div>
+
+    <!-- 3rd Party javascript -->
+    <script src="bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="bower_components/angular/angular.min.js"></script>
+    <script src="bower_components/angular-route/angular-route.min.js"></script>
+    <script src="bower_components/angular-animate/angular-animate.min.js"></script>
+    <script src="bower_components/angular-aria/angular-aria.min.js"></script>
+    <script src="bower_components/angular-messages/angular-messages.js"></script>
+    <script src="bower_components/angular-route/angular-route.min.js"></script>
+    <script src="bower_components/angular-material/angular-material.min.js"></script>
+    <script src="bower_components/pouchdb/dist/pouchdb.min.js"></script>
+    <script src="bower_components/angular-pouchdb/angular-pouchdb.min.js"></script>
+    <script src="bower_components/pouchdb-find/dist/pouchdb.find.min.js"></script>
+    <script src="bower_components/node-uuid/angular-uuid.js"></script>
+    <script src="bower_components/aws-sdk-js/dist/aws-sdk.min.js"></script>
+
+    <!-- External Libraries -->
+    <script src="libraries/geodesy.js"></script>
+  
+    <!-- App javascript -->
+    <script src="js/app.js"></script>     
+    
+    <!-- Services -->
+    <script src="services/BroadcastService.js"></script>  
+    <script src="services/GeodesyService.js"></script>
+    <script src="services/ToastService.js"></script>
+    <script src="services/AWSService.js"></script>
+    <script src="services/FileService.js"></script>
+    <script src="services/GPSService.js"></script>  
+    <script src="services/FriendService.js"></script>
+    <script src="services/PostService.js"></script>    
+    <script src="services/PlaceService.js"></script>
+    <script src="services/ConfigurationService.js"></script>  
+    
+    <!-- Controllers -->
+    <script src="controllers/configureController.js"></script>
+    <script src="controllers/friendController.js"></script>
+    <script src="controllers/friendsController.js"></script>
+    <script src="controllers/homeController.js"></script>
+    <script src="controllers/postController.js"></script>
+  </body>
+</html>

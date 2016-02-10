@@ -1,0 +1,30 @@
+<div ng-controller="friendController" layout="column" ng-cloak >
+  <md-content layout-padding class="md-padding" id="AppContentsHeader">
+    <section layout="row" layout-align="start start">
+      <div class="md-display-1">Friend</div>
+    </section>  
+  </md-content>
+  <md-content layout-padding class="md-padding" id="AppContentsBody" >
+    <section layout="row" layout-align="center start" >
+      <form name="friendForm" flex="80" flex-md="85" flex-sm="90" flex-xs="100" layout="column" ng-style="{background:'white'}">
+        <md-input-container class="md-block">
+          <label for="firstName">First Name</label>
+          <input type="text" class="form-control" id="firstName" ng-model="Friend.FirstName">          
+        </md-input-container>
+        <md-input-container class="md-block">
+          <label for="firstName">Last Name</label>
+          <input type="text" class="form-control" id="lastName" ng-model="Friend.LastName">
+        </md-input-container>
+        <md-input-container class="md-block">
+          <label for="firstName">Email Address</label>
+          <input type="text" class="form-control" id="emailAddress" ng-model="Friend.EmailAddress">
+        </md-input-container>
+        <md-input-container class="md-block">
+          <label for="firstName">Twitter</label>
+          <input type="text" class="form-control" id="twitter" ng-model="Friend.Twitter">
+        </md-input-container>
+        <md-button type="submit" ng-click="saveAndRedirect(Friend)" class="md-raised md-accent">Save</md-button>
+      </form>
+    </section>
+  </md-content>
+</div>

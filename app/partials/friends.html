@@ -1,0 +1,35 @@
+<div ng-controller="friendsController" layout="column" ng-cloak >
+  <md-content layout-padding class="md-padding" id="AppContentsHeader">
+    <section layout="row" layout-align="center start" >
+      <div flex="25">     
+        <div class="md-display-1">Friends</div>
+      </div>
+      <div flex></div>
+      <div flex="15">
+        <md-button class="md-icon-button" aria-label="Add Friend" ng-href="#friend">
+          <md-icon md-svg-icon="img/icons/ic_add_circle_black_24px.svg"></md-icon>
+        </md-button>
+      </div>
+    </section>
+  </md-content>
+  <md-content layout-padding class="md-padding" id="AppContentsBody" >    
+    <section class="md-padding" layout="row" layout-wrap layout-align="space-between start">
+      <md-card class="friend_card" ng-repeat="friend in Friends" flex="30" flex-md="45" flex-sm="100" flex-xs="100" ng-style="{'background-color':'white'}">
+        <md-card-title >
+          <md-card-title-media layout-align="start center">
+            <div class="md-media-sm card-media">
+              <md-icon md-svg-src="img/icons/ic_face_black_48px.svg" class="s48" aria-label="face"></md-icon>
+            </div>
+          </md-card-title-media>
+          <md-card-title-text layout-align="start start">
+            <span class="md-headline">{{ friend.FirstName + " " + friend.LastName }}</span>
+          </md-card-title-text>
+        </md-card-title>
+        <md-card-actions layout="row" layout-align="end center">
+          <md-button >View</md-button>
+          <md-button >Delete</md-button>
+        </md-card-actions>
+      </md-card>   
+    </section>
+  </md-content>
+</div>

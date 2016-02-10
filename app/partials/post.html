@@ -1,0 +1,50 @@
+<div ng-controller="postController" layout="column" ng-cloak>
+  <md-content layout-padding class="md-padding" id="AppContentsHeader">
+    <section layout="row" layout-align="start start">
+      <div class="md-display-1">Post</div>
+    </section>  
+  </md-content> 
+  <md-content layout-padding class="md-padding"  id="AppContentsBody" >
+    <section layout="row" layout-align="center start" >
+      <form name="projectForm" flex="80" flex-md="85" flex-sm="90" flex-xs="100" layout="column" ng-style="{background:'white'}">
+        <div layout="row" layout-xs="column" layout-sm="column">
+          <div flex-gt-sm="25" layout-padding class="md-padding" >
+            <label id="postDateTime">{{ GetPostDateString() }}</label>  
+          </div>
+          <div flex hide-xs hide-sm>&nbsp;</div>
+          <div ng-hide="Post.Location==null" flex-gt-sm="40" layout-padding class="md-padding">
+            <label id="postLocation" ng-bind="GetLocationString()"></label>
+          </div>          
+        </div>
+        <md-input-container class="md-block">
+          <label for="postText">Enter your post here.</label>
+          <textarea class="form-control" id="postText" name="postText" ng-model="Post.Text" required></textarea>
+          <div ng-messages="projectForm.description.$error">
+            <div ng-message="required">This is required.</div>
+          </div>
+        </md-input-container>
+        <md-autocomplete
+          md-input-name="txtPostPlace"
+          md-input-minlength="0"
+          md-input-maxlength="50"                           
+          md-selected-item="SelectedPlace"
+          md-search-text="PlaceSearchText"                         
+          md-items="item in NearbyPlaces"
+          md-item-text="item.Name"
+          md-floating-label="Where are you?">
+          <md-item-template>
+            <span md-highlight-text="SearchText">{{item.Name}}</span>              
+          </md-item-template>
+        </md-autocomplete>
+        <div class="form-group">
+          <md-button class="md-raised">
+            <label for="postImage">Select an image</label>
+          </md-button>
+          <label id="postFilename">{{ Post.Filename }}</label>
+          <input type="file" id="postImage" onchange="angular.element(this).scope().FileNameChanged(this)" multiple style="display:none;"></input>  
+        </div>
+        <md-button type="submit" ng-click="SavePost(Post)" class="md-raised md-accent">Save</md-button>
+      </form>
+    </section>
+  </md-content>
+</div>
