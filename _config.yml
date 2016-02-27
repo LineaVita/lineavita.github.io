@@ -9,7 +9,7 @@ tagline:             'A bring your own storage social media system.'
 description:         'LineaVita is a simple social media application that has no advertisements.  It is based on utilizing storage provided by users.'
 url:                 'http://lineavita.github.io'
 repo:				 'http://github.com/LineaVita/Vita'
-baseurl:             'http://www.lineavita.me'
+baseurl:             'https://lineavita.github.io'
 paginate:            5
 
 # About/contact
@@ -18,4 +18,4 @@ author:
   url:               https://twitter.com/brian_e_nelson
   
 # Custom vars
-version:             0.5.0
+version:             0.7.0
