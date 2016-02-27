@@ -33,26 +33,19 @@ function(uuid, pouchDB, $q, broadcastService, geodesyService) {
   .then(function() {
     placeService.NameIndexReady = true;
     
-    if (placeService.LocationIndexReady) {
-      placeService.SetReady();   
-    }    
-  });
-  
-  //Create an index for names
-  placeService.db.createIndex(locationIndex)
+    return placeService.db.createIndex(locationIndex);
+  })
   .then(function() {
-    placeService.LocationIndexReady = true;
+    placeService.NameIndexReady = true;
     
-    if (placeService.NameIndexReady) {
-      placeService.SetReady();   
-    }    
-  });
-    
-  placeService.SetReady = function()
-  {
+    return placeService.db.createIndex({ index: { fields: ['LastModifiedDateTime'] } });
+  })
+  .then(function() {
+    placeService.LastModifiedIndexReady = true;
+
     placeService.Ready = true;
     placeService.Broadcast.Send('PlaceServiceReady', null);
-  }
+  });
    
   //New Post
   placeService.NewPlace = function() {
@@ -63,6 +56,7 @@ function(uuid, pouchDB, $q, broadcastService, geodesyService) {
     entry.Longitude = null;
     entry.Name = null;
     entry.Description = null;
+    entry.LastModifiedDateTime = null;
            
     return entry;
   };
@@ -104,6 +98,8 @@ function(uuid, pouchDB, $q, broadcastService, geodesyService) {
   
   placeService.SavePlace = function(entry) {
     var deferred = $q.defer();
+    
+    entry.LastModifiedDateTime = Date.now();
 
     if (entry != null) {
       //if null then a new post
@@ -163,6 +159,31 @@ function(uuid, pouchDB, $q, broadcastService, geodesyService) {
     return deferred.promise; 
   };
   
+  placeService.GetPlaces = function() {
+    var deferred = $q.defer();
+    
+    placeService.db.allDocs({
+      include_docs: true,
+      attachments: true
+    }).then(function (places) {
+      var output = [];
+
+      if (places != null && places.rows != null) {
+        for (i = 0, len = places.rows.length; i < len; i++) { 
+          var place = places.rows[i];
+          output.push(place.doc);
+        }
+      }      
+      
+      deferred.resolve(output)
+    }).catch(function (err) {
+      console.log(err);
+      deferred.resolve(null);
+    });
+
+    return deferred.promise; 
+  }
+  
   placeService.FindPlacesNearPoint = function(latitude, longitude) {
     var deferred = $q.defer();
     
@@ -209,7 +230,35 @@ function(uuid, pouchDB, $q, broadcastService, geodesyService) {
     });
     
     return deferred.promise; 
-  } 
+  };
+  
+  placeService.GetPlacesModifiedSince = function(startDate) {
+    var deferred = $q.defer();
+    
+    var select = {
+      selector: { LastModifiedDateTime: { $gte: startDate.valueOf() } },
+      sort: [ {LastModifiedDateTime: 'asc'} ]    
+    };
+    
+    placeService.db.find(select)
+    .then(function(places) {
+        //loop through and just return the actual places.
+        var output = [];
+    
+        if (places != null && places.docs != null) {
+          for (i = 0, len = places.docs.length; i < len; i++) { 
+              output.push(places.docs[i]);
+          }
+        }
+
+        deferred.resolve(output);
+    })
+    .catch(function (err) {
+      deferred.resolve(null);         
+    });
+    
+    return deferred.promise; 
+  }  
   
   return placeService;
   

@@ -1,0 +1,26 @@
+<div ng-controller="syncController" layout="column" ng-cloak>
+  <md-content layout-padding class="md-padding" id="AppContentsHeader">
+    <section layout="row" layout-align="start start">
+      <div flex="25">     
+        <div class="md-display-1">Sync to AWS</div>
+      </div>
+      <div flex></div>
+      <div flex="15">
+        <md-progress-circular md-mode="{{ ProgressMode }}" md-diameter="60"></md-progress-circular> 
+      </div>
+    </section>  
+  </md-content> 
+  <md-content layout-padding class="md-padding" id="AppContentsBody">
+    <section layout="row" layout-align="center start" >
+      <form name="projectForm" flex="80" flex-md="85" flex-sm="90" flex-xs="100" layout="column" ng-style="{background:'white'}">
+        <md-input-container class="md-block">
+          <label for="postText">{{ LastSyncTimeString }}</label>
+        </md-input-container>
+        <md-input-container class="md-block">
+          &nbsp;
+        </md-input-container>
+        <md-button type="submit" ng-click="SyncNow()" class="md-raised md-accent" ng-disabled="Syncing">Sync Now</md-button>
+      </form>
+    </section>
+  </md-content>
+</div>

@@ -13,6 +13,7 @@ File Structure
 # Objects
 Post
 
+    _id
     PostDateTime
     Text
     Location 
@@ -20,6 +21,13 @@ Post
     FileCount
     FileIds
     Tags
+
+Location (Part of Post)
+    
+    DateTime
+    Latitude
+    Longitude
+
 
 Place
     
@@ -32,18 +40,11 @@ Place
 
 File
 
+    _id
     Filename
-    Uri
+    FileSize
+    Attachments
 
-
-
-Location
-    
-    DateTime
-    Latitude
-    Longitude
-    
-    
 Friend
     
     FirstName
@@ -53,8 +54,6 @@ Friend
     PrimaryPhone
     SecondaryPhone    
     BirthDate
-    
-
 
 
 # Install

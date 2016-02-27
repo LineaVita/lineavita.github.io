@@ -1,8 +1,16 @@
 <div ng-controller="configureController" layout="column" ng-cloak >
   <md-content layout-padding class="md-padding" id="AppContentsHeader">
-    <section layout="row" layout-align="start start">
-      <div class="md-display-1">Configuration</div>
-    </section>  
+    <section layout="row" layout-align="start start">    
+      <div flex="25">     
+        <div class="md-display-1">Configuration</div>
+      </div>
+      <div flex></div>
+      <div flex="15">
+        <md-button aria-label="Sync" ng-href="#sync" class="md-raised" ng-disabled="!Configuration.UseAWS">
+          Sync
+        </md-button>
+      </div>
+    </section>      
   </md-content>
   <md-content layout-padding class="md-padding" id="AppContentsBody">
     <section layout="row" layout-align="center start" >
@@ -16,19 +24,19 @@
           </md-input-container>
           <md-input-container class="md-block">
             <label for="awsKey">AWS Key</label>
-            <input type="text" class="form-control" id="awsKey" placeholder="AWS Key" ng-model="Configuration.AWSKey" ng-disabled="!Configuration.UseAWS">
+            <input type="text" class="form-control" id="awsKey" ng-model="Configuration.AWSKey" ng-disabled="!Configuration.UseAWS">
           </md-input-container>
           <md-input-container class="md-block">
             <label for="awsSecret">AWS Secret</label>
-            <input type="password" class="form-control" id="awsSecret" placeholder="AWS Secret" ng-model="Configuration.AWSSecret" ng-disabled="!Configuration.UseAWS">
+            <input type="password" class="form-control" id="awsSecret" ng-model="Configuration.AWSSecret" ng-disabled="!Configuration.UseAWS">
           </md-input-container>
           <md-input-container class="md-block">
-            <label for="awsSecret">AWS Region</label>
-            <input type="password" class="form-control" id="awsRegion" placeholder="AWS Region" ng-model="Configuration.AWSRegion" ng-disabled="!Configuration.UseAWS">
+            <label for="awsRegion">AWS Region</label>
+            <input type="text" class="form-control" id="awsRegion" ng-model="Configuration.AWSRegion" ng-disabled="!Configuration.UseAWS">
           </md-input-container>          
           <md-input-container class="md-block">
-            <label for="awsSecret">AWS Bucket</label>
-            <input type="text" class="form-control" id="awsBucket" placeholder="AWS Bucket" ng-model="Configuration.AWSBucketName" ng-disabled="!Configuration.UseAWS">
+            <label for="awsBucket">AWS Bucket</label>
+            <input type="text" class="form-control" id="awsBucket" ng-model="Configuration.AWSBucketName" ng-disabled="!Configuration.UseAWS">
           </md-input-container>
           <md-input-container class="md-block">
             <md-checkbox ng-model="Configuration.ShowAWSNotifications" id="showNotifications" aria-label="Show Notifications">
@@ -39,8 +47,8 @@
         <fieldset class="standard">
           <legend>Google Api</legend>
           <md-input-container class="md-block">
-            <label for="awsSecret">Google Api Key</label>
-            <input type="text" class="form-control" id="googleApiKey" placeholder="Google Maps Api Key" ng-model="Configuration.GoogleApiKey" ng-disabled="!Configuration.UseAWS">
+            <label for="googleApiKey">Google Maps Api Key</label>
+            <input type="text" class="form-control" id="googleApiKey" ng-model="Configuration.GoogleApiKey">
           </md-input-container>
         </fieldset>
         <md-button type="submit" ng-click="saveConfig(Configuration)" class="md-raised md-accent">Save</md-button>

@@ -150,6 +150,20 @@ function(pouchDB, $q) {
 
     return deferred.promise;
   };  
+  
+  configurationService.GetSettingValueByName = function(name) {
+    var deferred = $q.defer(); 
+
+    configurationService.db.get(name)
+    .then(function(doc) {
+      deferred.resolve(doc.value);         
+    })
+    .catch(function (err) {
+      deferred.resolve(null);         
+    });
+
+    return deferred.promise;
+  };  
 
   configurationService.GetSettings = function() {
     var deferred = $q.defer();      

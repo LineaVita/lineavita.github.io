@@ -6,21 +6,21 @@ vitaApp.controller('friendController', ['$scope', '$location', 'FriendService',
     }
 
     $scope.loadFriend = function(id) {
-      friendService.loadFriend(id)
+      friendService.LoadFriend(id)
         .then(function(friend) {
           return friend;
         });
     };
 
     $scope.saveFriend = function (friend) {
-      friendService.saveFriend(friend)
+      friendService.SaveFriend(friend)
         .then(function(output) {
           return output;
         });
     };
     
     $scope.saveAndRedirect = function(friend) {
-      friendService.saveFriend(friend)
+      friendService.SaveFriend(friend)
         .then(function (output) {
           $location.path('/friends');
         });           

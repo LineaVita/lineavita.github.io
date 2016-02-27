@@ -20,6 +20,9 @@ function(uuid, pouchDB, $q, broadcastService) {
   //Create an index for dates
   postService.db.createIndex(dateIndex)
   .then(function() {
+    return postService.db.createIndex({ index: { fields: ['LastModifiedDateTime'] } });
+  })
+  .then(function() {
     postService.Ready = true;
     postService.Broadcast.Send('PostServiceReady', null);
   });
@@ -34,6 +37,7 @@ function(uuid, pouchDB, $q, broadcastService) {
     entry.FileCount = 0;
     entry.Place = null;
     entry.FileIds = null;
+    entry.LastModifiedDateTime = null;
            
     return entry;
   };
@@ -41,6 +45,8 @@ function(uuid, pouchDB, $q, broadcastService) {
   //Save the post to the database
   postService.SavePost = function(entry) {
     var deferred = $q.defer();
+    
+    entry.LastModifiedDateTime = Date.now();
 
     if (entry != null) {
       //if null then a new post
@@ -116,6 +122,32 @@ function(uuid, pouchDB, $q, broadcastService) {
     return deferred.promise;  
   };
   
+  postService.GetPosts = function() {
+    var deferred = $q.defer();
+    
+    postService.db.allDocs({
+                            include_docs: true,
+                            attachments: true
+                          })
+    .then(function (posts) {
+      var output = [];
+
+      if (posts != null && posts.rows != null) {
+        for (var i = 0, len = posts.rows.length; i < len; i++) { 
+          var place = posts.rows[i];
+          output.push(place.doc);
+        }
+      }      
+      
+      deferred.resolve(output)
+    }).catch(function (err) {
+      console.log(err);
+      deferred.resolve(null);
+    });
+
+    return deferred.promise; 
+  }
+  
   //Returns posts in a time period
   postService.GetPostsInRange = function(startDate, endDate) {
     var deferred = $q.defer();
@@ -146,7 +178,7 @@ function(uuid, pouchDB, $q, broadcastService) {
     });
     
     return deferred.promise; 
-  } 
+  };
   
   postService.GetPostsSince = function(startDate) {
     var deferred = $q.defer();
@@ -174,7 +206,7 @@ function(uuid, pouchDB, $q, broadcastService) {
     });
     
     return deferred.promise; 
-  }  
+  };
    
   postService.GetPostDateString = function(postDateTime) {
     var d = new Date(postDateTime);
@@ -185,19 +217,47 @@ function(uuid, pouchDB, $q, broadcastService) {
     if (location != null) {
       return "Position (" + location.Latitude.toFixed(4) + ", " + location.Longitude.toFixed(4) + ")";
     }
-  }
+  };
   
   postService.GetGoogleHref = function(location, api) {
     if (location != null) {
       return "https://www.google.com/maps/embed/v1/view?key=" + api + "&center=" +location.Latitude.toFixed(4) + "," + location.Longitude.toFixed(4)
     }      
-  }
+  };
   
-    postService.GetGoogleHref2 = function(location) {
+  postService.GetGoogleHref2 = function(location) {
     if (location != null) {
       return "https://www.google.com/maps/@" + location.Latitude.toFixed(4) + "," + location.Longitude.toFixed(4) + ",18z";
     }      
-  }
+  };
+  
+  postService.GetPostsModifiedSince = function(startDate) {
+    var deferred = $q.defer();
+    
+    var select = {
+      selector: { LastModifiedDateTime: { $gte: startDate.valueOf() } },
+      sort: [ {LastModifiedDateTime: 'asc'} ]    
+    };
+    
+    postService.db.find(select)
+    .then(function(posts) {
+        //loop through and just return the actual posts.
+        var output = [];
+    
+        if (posts != null && posts.docs != null) {
+          for (i = 0, len = posts.docs.length; i < len; i++) { 
+              output.push(posts.docs[i]);
+          }
+        }
+
+        deferred.resolve(output);
+    })
+    .catch(function (err) {
+      deferred.resolve(null);         
+    });
+    
+    return deferred.promise; 
+  };    
   
   return postService;  
 }]);

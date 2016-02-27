@@ -43,11 +43,35 @@ function($rootScope, $q, $mdToast, configService, toastService) {
     }
   }
   
-  awsService.ListBucket = function(){
+  awsService.ListBucket = function(prefix) {
     var deferred = $q.defer();
+
+    // Configure The S3 Object 
+    AWS.config.update(awsService.Credentials);
+    AWS.config.region = awsService.Configuration.AWSRegion;
+           
+    var params = {
+      Bucket: awsService.Configuration.AWSBucketName, 
+      Delimiter: '/',
+      EncodingType: 'url',
+      Prefix: prefix
+    };
     
-    //TODO add code to list bucket
+    var s3 = new AWS.S3();
     
+    s3.listObjects(params, function(err, data) {
+      if (err) {
+        // an error occurred
+        console.log(err, err.stack); 
+        deferred.resolve(null);
+      } 
+      else {
+        // successful response
+        console.log(data);     
+        deferred.resolve(data);
+      }   
+    });
+
     return deferred.promise;
   }
   
@@ -82,6 +106,18 @@ function($rootScope, $q, $mdToast, configService, toastService) {
     else {
       // No File Selected
       alert('No File Selected');
+    }
+  }
+  
+  awsService.Save = function(type, item) {
+    if (type == "posts"){
+      return awsService.SavePost(item);
+    } else if (type == "places") {
+      return awsService.SavePlace(item);
+    } else if (type == "friends") {
+      return awsService.SaveFriend(item);
+    } else if (type == "files") {
+      
     }
   }
     

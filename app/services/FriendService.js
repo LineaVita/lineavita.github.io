@@ -11,6 +11,9 @@ function(uuid, pouchDB, $q, broadcastService) {
   //Create an index for Friend by Name
   friendService.db.createIndex({ index: { fields: ['LastName', 'FirstName'] } })
   .then(function() {
+    return friendService.db.createIndex({ index: { fields: ['LastModifiedDateTime'] } });
+  })
+  .then(function() {
     friendService.Ready = true;
     friendService.Broadcast.Send('FriendServiceReady', null);
   });
@@ -19,7 +22,7 @@ function(uuid, pouchDB, $q, broadcastService) {
   friendService.uuid = uuid;
   
   //Add the getFriends method
-  friendService.getFriends = function() {
+  friendService.GetFriends = function() {
     var deferred = $q.defer();
 
     friendService.db.allDocs({ include_docs: true, attachments: true })
@@ -36,7 +39,7 @@ function(uuid, pouchDB, $q, broadcastService) {
     return deferred.promise;
   };
   
-  friendService.getFriend = function(id) {
+  friendService.GetFriend = function(id) {
     var deferred = $q.defer();
     
     friendService.db.get(id)
@@ -48,7 +51,7 @@ function(uuid, pouchDB, $q, broadcastService) {
   }
   
   //Create a new friend
-  friendService.newFriend = function(){
+  friendService.NewFriend = function(){
     var friend = {};
     friend._id = friendService.uuid.v4();
     friend.FirstName = "";
@@ -56,12 +59,13 @@ function(uuid, pouchDB, $q, broadcastService) {
     friend.Email = "";
     friend.Twitter = "";
     friend.BirthDate = null;
+    friend.LastModifiedDateTime = null;
 
     return friend;
   };
 
   //Load a friend from database
-  friendService.loadFriend = function(id) {
+  friendService.LoadFriend = function(id) {
     var deferred = $q.defer();
 
     friendService.db.get(id)
@@ -73,8 +77,10 @@ function(uuid, pouchDB, $q, broadcastService) {
   };
   
   //Save a friend to the database
-  friendService.saveFriend = function (friend) {
+  friendService.SaveFriend = function (friend) {
     var deferred = $q.defer();
+    
+    friend.LastModifiedDateTime = Date.now();
 
     if (friend != null) {
       //If the friend._id is null it is new
@@ -119,6 +125,34 @@ function(uuid, pouchDB, $q, broadcastService) {
     }
     
     return deferred.promise;   
+  };
+  
+   friendService.GetFriendsModifiedSince = function(startDate) {
+    var deferred = $q.defer();
+    
+    var select = {
+      selector: { LastModifiedDateTime: { $gte: startDate.valueOf() } },
+      sort: [ {LastModifiedDateTime: 'asc'} ]    
+    };
+    
+    friendSerive.db.find(select)
+    .then(function(friends) {
+        //loop through and just return the actual friends.
+        var output = [];
+    
+        if (friends != null && friends.docs != null) {
+          for (i = 0, len = friends.docs.length; i < len; i++) { 
+              output.push(friends.docs[i]);
+          }
+        }
+
+        deferred.resolve(output);
+    })
+    .catch(function (err) {
+      deferred.resolve(null);         
+    });
+    
+    return deferred.promise; 
   };
   
   return friendService;
