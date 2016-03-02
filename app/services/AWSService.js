@@ -75,7 +75,41 @@ function($rootScope, $q, $mdToast, configService, toastService) {
     return deferred.promise;
   }
   
-  awsService.UploadFile = function(objectType, filename, filetype, file) {
+  awsService.GetFile = function(key) {
+    var deferred = $q.defer();
+    
+    AWS.config.update(awsService.Credentials);
+    AWS.config.region = awsService.Configuration.AWSRegion;
+    
+    var params = {
+      Bucket: awsService.Configuration.AWSBucketName,
+      Key: key
+    };
+    
+    var s3 = new AWS.S3();
+    
+    s3.getObject(params, function(err, data) {
+      if (err) { 
+        console.log(err, err.stack); // an error occurred
+        deferred.resolve(null);
+      } else {
+        if (data != null) {
+          var temp = String.fromCharCode.apply(String, data.Body);
+          deferred.resolve(JSON.parse(temp));
+        } else {
+          deferred.resolve(null);
+        }        
+      }     
+    });
+    
+    return deferred.promise;
+  }
+  
+  awsService.UploadFile = function(objectType, filename, filetype, file, showNotifications) {
+    if (showNotifications = null) {
+      showNotifications = awsService.ShowNotifications;
+    }
+    
     // Configure The S3 Object 
     AWS.config.update(awsService.Credentials);
     AWS.config.region = awsService.Configuration.AWSRegion;
@@ -93,7 +127,7 @@ function($rootScope, $q, $mdToast, configService, toastService) {
         }
         else {
           // Success!
-          if (awsService.ShowNotifications) {
+          if (showNotifications) {
             awsService.ToastService.ShowToast('Uploaded ' + objectType + ' to aws')
           }          
         }
@@ -109,38 +143,38 @@ function($rootScope, $q, $mdToast, configService, toastService) {
     }
   }
   
-  awsService.Save = function(type, item) {
+  awsService.Save = function(type, item, showNotification) {
     if (type == "posts"){
-      return awsService.SavePost(item);
+      return awsService.SavePost(item, showNotification);
     } else if (type == "places") {
-      return awsService.SavePlace(item);
+      return awsService.SavePlace(item, showNotification);
     } else if (type == "friends") {
-      return awsService.SaveFriend(item);
+      return awsService.SaveFriend(item, showNotification);
     } else if (type == "files") {
       
     }
   }
     
-  awsService.SavePost = function(post) {
+  awsService.SavePost = function(post, showNotification) {
     if (awsService.Enabled) {
       if (post != null) {
         var filename = "posts/" + post._id + '.json';
         var filetype = "application/json";
         var body = JSON.stringify(post);
 
-        awsService.UploadFile('post', filename, filetype, body);
+        awsService.UploadFile('post', filename, filetype, body, showNotification);
       }
     }
   };
   
-  awsService.SavePlace = function(place) {
+  awsService.SavePlace = function(place, showNotification) {
     if (awsService.Enabled) {
       if (place != null) {
         var filename = "places/" + place._id + '.json';
         var filetype = "application/json";
         var body = JSON.stringify(place);
 
-        awsService.UploadFile('place', filename, filetype, body);
+        awsService.UploadFile('place', filename, filetype, body, showNotification);
       }
     }
   };
@@ -155,14 +189,14 @@ function($rootScope, $q, $mdToast, configService, toastService) {
     }
   };
   
-  awsService.SaveFriend = function(friend) {
+  awsService.SaveFriend = function(friend, showNotification) {
     if (awsService.Enabled) {
       if (friend != null) {
         var filename = "friends/" + friend._id + '.json';
         var filetype = "application/json";
         var body = JSON.stringify(friend);
 
-        awsService.UploadFile('friend', filename, filetype, body);
+        awsService.UploadFile('friend', filename, filetype, body, showNotification);
       }    
     }
   };

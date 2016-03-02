@@ -20,7 +20,7 @@ function(uuid, pouchDB, $q, broadcastService) {
   //Create an index for dates
   postService.db.createIndex(dateIndex)
   .then(function() {
-    return postService.db.createIndex({ index: { fields: ['LastModifiedDateTime'] } });
+    return postService.db.createIndex({ index: { name:"lastmodifiedindex", fields: ['LastModifiedDateTime'] } });
   })
   .then(function() {
     postService.Ready = true;
@@ -43,7 +43,10 @@ function(uuid, pouchDB, $q, broadcastService) {
   };
   
   //Save the post to the database
-  postService.SavePost = function(entry) {
+  postService.SavePost = function(entry, broadcastSave) {
+    if (broadcastSave == null) {
+      broadcastSave = true;
+    }    
     var deferred = $q.defer();
     
     entry.LastModifiedDateTime = Date.now();
@@ -55,7 +58,9 @@ function(uuid, pouchDB, $q, broadcastService) {
 
         postService.db.post(entry)
         .then(function(output) {
-          postService.Broadcast.Send('PostSaved', entry);
+          if (broadcastService) {
+            postService.Broadcast.Send('PostSaved', entry);
+          }
           
           return deferred.resolve(output);
         });
@@ -71,7 +76,9 @@ function(uuid, pouchDB, $q, broadcastService) {
             //Save the post to db
             postService.db.put(entry)
             .then(function(output) {
-              postService.Broadcast.Send('PostSaved', entry);
+              if (broadcastSave) {
+                postService.Broadcast.Send('PostSaved', entry);
+              }
               
               deferred.resolve(output);
             });
@@ -79,12 +86,30 @@ function(uuid, pouchDB, $q, broadcastService) {
             //not found so a new post
             postService.db.post(entry)
             .then(function(output) {
-              postService.Broadcast.Send('PostSaved', entry);
+              if (broadcastSave) {
+                postService.Broadcast.Send('PostSaved', entry);
+              }
               
               deferred.resolve(output);
             });
           }
-        });   
+        })
+        .catch(function (err) {
+          if (err.status == 404) {
+            postService.db.post(entry)
+            .then(function(output) {
+              if (broadcastSave) {
+                postService.Broadcast.Send('PostSaved', entry);  
+              }
+
+              deferred.resolve(output);
+            });            
+          } else {
+            console.log(err);
+          }
+          
+          deferred.resolve(null);
+        });  ;   
       }
     }
     

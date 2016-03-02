@@ -5,6 +5,15 @@ function($scope, $routeParams, $location, configService, syncService) {
   $scope.LastSyncTimeString = null;
   $scope.ProgressMode = null;
   $scope.Syncing = false;
+  
+  $scope.RedirectIfNotConfigured = function() {
+    configService.GetSettingValueByName('UseAWS')
+    .then(function (rawValue) {
+      if (rawValue == null && !rawValue) {
+        $location.path("/configure")
+      }       
+    });
+  }
     
   $scope.GetLastSyncTimeString = function() {
     configService.GetSettingValueByName('LastAWSSyncTime')
@@ -38,6 +47,8 @@ function($scope, $routeParams, $location, configService, syncService) {
   
   //Run setup functions
   $scope.GetLastSyncTimeString();
+  
+  $scope.RedirectIfNotConfigured();
 
 }]);
                                       

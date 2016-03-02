@@ -144,6 +144,9 @@ function(uuid, $q, awsService,
     
     syncService.SendAllToServer(type, localsToPush)
     .then(function() {
+      return syncService.PullAllFromServer(type, serverToGet);
+    })
+    .then(function() {
       deferred.resolve();
     })
     
@@ -157,7 +160,7 @@ function(uuid, $q, awsService,
     for (i = 0; i < items.length; i++) {
       var item = items[i];
             
-      var promise = syncService.AWSService.Save(type, item);
+      var promise = syncService.AWSService.Save(type, item, false);
       promises.push(promise);
     }
     
@@ -170,7 +173,29 @@ function(uuid, $q, awsService,
   }
   
   syncService.PullAllFromServer = function(type, items) {
+    var deferred = $q.defer();
+    var promises = [];
     
+    for (var i = 0; i < items.length; i++) {
+      var item = items[i];
+            
+      var promise = syncService.AWSService.GetFile(item.Key);
+      promises.push(promise);
+    }
+    
+    $q.all(promises)
+    .then(function(values) {
+      for (var j=0; j< values.length; j++) {
+        var value = values[j];
+        
+        syncService.Save(type, value);        
+        console.log(value)
+      }
+      
+      deferred.resolve();
+    });
+        
+    return deferred.promise;    
   }
   
   syncService.FindInList = function(id, list, remove) {
@@ -192,6 +217,18 @@ function(uuid, $q, awsService,
     }
     
     return output;
+  }
+  
+  syncService.Save = function(type, item) {
+    if (type == "posts"){
+      return postService.SavePost(item, false);
+    } else if (type == "places") {
+      return placeService.SavePlace(item, false);
+    } else if (type == "friends") {
+      return friendService.SaveFriend(item, false);
+    } else if (type == "files") {
+      
+    }
   }
  
   return syncService;

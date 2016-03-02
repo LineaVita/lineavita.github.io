@@ -38,7 +38,7 @@ function(uuid, pouchDB, $q, broadcastService, geodesyService) {
   .then(function() {
     placeService.NameIndexReady = true;
     
-    return placeService.db.createIndex({ index: { fields: ['LastModifiedDateTime'] } });
+    return placeService.db.createIndex({ index: { name:"lastmodifiedindex", fields: ['LastModifiedDateTime'] } });
   })
   .then(function() {
     placeService.LastModifiedIndexReady = true;
@@ -96,7 +96,10 @@ function(uuid, pouchDB, $q, broadcastService, geodesyService) {
     return deferred.promise;
   }
   
-  placeService.SavePlace = function(entry) {
+  placeService.SavePlace = function(entry, broadcastSave) {
+    if (broadcastSave == null) {
+      broadcastSave = true;
+    }
     var deferred = $q.defer();
     
     entry.LastModifiedDateTime = Date.now();
@@ -108,7 +111,9 @@ function(uuid, pouchDB, $q, broadcastService, geodesyService) {
 
         placeService.db.post(entry)
         .then(function(output) {
-          placeService.Broadcast.Send('PlaceSaved', entry);
+          if (broadcastSave) {
+            placeService.Broadcast.Send('PlaceSaved', entry);
+          }
           
           return deferred.resolve(output);
         });
@@ -124,20 +129,39 @@ function(uuid, pouchDB, $q, broadcastService, geodesyService) {
             //Save the post to db
             placeService.db.put(entry)
             .then(function(output) {
-              placeService.Broadcast.Send('PlaceSaved', entry);
-              
+              if (broadcastSave) {
+                placeService.Broadcast.Send('PlaceSaved', entry);
+              }
               deferred.resolve(output);
             });
           } else {
             //not found so a new post
             placeService.db.post(entry)
             .then(function(output) {
-              placeService.Broadcast.Send('PlaceSaved', entry);
+              if (broadcastSave) {
+                placeService.Broadcast.Send('PlaceSaved', entry);
+              }
               
               deferred.resolve(output);
             });
           }
-        });   
+        })
+        .catch(function (err) {
+          if (err.status == 404) {
+            placeService.db.post(entry)
+            .then(function(output) {
+              if (broadcastSave) {
+                placeService.Broadcast.Send('PlaceSaved', entry);  
+              }
+
+              deferred.resolve(output);
+            });            
+          } else {
+            console.log(err);
+          }
+          
+          deferred.resolve(null);
+        });     
       }
     }
     
@@ -169,9 +193,16 @@ function(uuid, pouchDB, $q, broadcastService, geodesyService) {
       var output = [];
 
       if (places != null && places.rows != null) {
-        for (i = 0, len = places.rows.length; i < len; i++) { 
-          var place = places.rows[i];
-          output.push(place.doc);
+        for (var i = 0, len = places.rows.length; i < len; i++) { 
+          var place = places.rows[i].doc;
+          
+          var id = place._id;
+          if (id != null) {
+            var idStart = id.substring(0, 7);
+            if (idStart != "_design") {
+              output.push(place);
+            }
+          }
         }
       }      
       

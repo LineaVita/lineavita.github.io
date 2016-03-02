@@ -2,10 +2,11 @@
   <md-content layout-padding class="md-padding" id="AppContentsHeader">
     <section layout="row" layout-align="start start">    
       <div flex="25">     
-        <div class="md-display-1">Configuration</div>
+        <div class="md-display-1" hide-xs>Configuration</div>
+        <div class="md-display-1" hide-sm hide-md hide-lg>Config</div>
       </div>
       <div flex></div>
-      <div flex="15">
+      <div flex="15" flex-xs="30" flex-sm="25" flex-md="20">
         <md-button aria-label="Sync" ng-href="#sync" class="md-raised" ng-disabled="!Configuration.UseAWS">
           Sync
         </md-button>
@@ -14,8 +15,8 @@
   </md-content>
   <md-content layout-padding class="md-padding" id="AppContentsBody">
     <section layout="row" layout-align="center start" >
-      <form name="friendForm" flex="80" flex-md="85" flex-sm="90" flex-xs="100" layout="column" ng-style="{background:'white'}">  
-        <fieldset class="standard">
+      <form name="configureForm" flex="80" flex-md="85" flex-sm="90" flex-xs="100" layout="column" >  
+        <fieldset class="standard" ng-style="{background:'white'}">
           <legend>AWS Settings</legend>
           <md-input-container class="md-block">
             <md-checkbox ng-model="Configuration.UseAWS" id="useAWS" aria-label="Use AWS">
@@ -44,7 +45,7 @@
             </md-checkbox>
           </md-input-container>
         </fieldset>
-        <fieldset class="standard">
+        <fieldset class="standard" ng-style="{background:'white'}">
           <legend>Google Api</legend>
           <md-input-container class="md-block">
             <label for="googleApiKey">Google Maps Api Key</label>

@@ -9,9 +9,9 @@ function(uuid, pouchDB, $q, broadcastService) {
   friendService.db = pouchDB("friends");
   
   //Create an index for Friend by Name
-  friendService.db.createIndex({ index: { fields: ['LastName', 'FirstName'] } })
+  friendService.db.createIndex({ index: { name: "nameindex", fields: ['LastName', 'FirstName'] } })
   .then(function() {
-    return friendService.db.createIndex({ index: { fields: ['LastModifiedDateTime'] } });
+    return friendService.db.createIndex({ index: { name:"lastmodifiedindex", fields: ['LastModifiedDateTime'] } });
   })
   .then(function() {
     friendService.Ready = true;
@@ -26,11 +26,19 @@ function(uuid, pouchDB, $q, broadcastService) {
     var deferred = $q.defer();
 
     friendService.db.allDocs({ include_docs: true, attachments: true })
-    .then(function(docs){
+    .then(function(friends){
       var output = [];
 
-      for (i = 0, len = docs.rows.length; i < len; i++) { 
-          output.push(docs.rows[i].doc);
+      for (var i = 0, len = friends.rows.length; i < len; i++) { 
+        var friend = friends.rows[i].doc;
+          
+        var id = friend._id;
+        if (id != null) {
+          var idStart = id.substring(0, 7);
+          if (idStart != "_design") {
+            output.push(friend);
+          }
+        }
       }
 
       deferred.resolve(output);
@@ -77,7 +85,11 @@ function(uuid, pouchDB, $q, broadcastService) {
   };
   
   //Save a friend to the database
-  friendService.SaveFriend = function (friend) {
+  friendService.SaveFriend = function (friend, broadcastSave) {
+    if (broadcastSave == null) {
+      broadcastSave = true;
+    }
+
     var deferred = $q.defer();
     
     friend.LastModifiedDateTime = Date.now();
@@ -89,7 +101,9 @@ function(uuid, pouchDB, $q, broadcastService) {
 
         friendService.db.post(friend)
         .then(function(output) {
-          friendService.Broadcast.Send('FriendSaved', friend);
+          if (broadcastSave) {
+            friendService.Broadcast.Send('FriendSaved', friend);  
+          }
           
           deferred.resolve(output);
         });
@@ -104,7 +118,9 @@ function(uuid, pouchDB, $q, broadcastService) {
             //Perform a put on the friend
             friendService.db.put(friend)
             .then(function(output) {
-              friendService.Broadcast.Send('FriendSaved', friend);
+              if (broadcastSave) {
+                friendService.Broadcast.Send('FriendSaved', friend);
+              }
               
               deferred.resolve(output);
             });
@@ -112,14 +128,29 @@ function(uuid, pouchDB, $q, broadcastService) {
             //Didn't find the doc so just save the new one
             friendService.db.post(friend)
             .then(function(output) {
-              friendService.Broadcast.Send('FriendSaved', friend);
+              if (broadcastSave) {
+                friendService.Broadcast.Send('FriendSaved', friend);
+              }
               
               deferred.resolve(output);
             });
           }
         })
         .catch(function (err) {
-          console.log(err);
+          if (err.status == 404) {
+            friendService.db.post(friend)
+            .then(function(output) {
+              if (broadcastSave) {
+                friendService.Broadcast.Send('FriendSaved', friend);  
+              }
+
+              deferred.resolve(output);
+            });            
+          } else {
+            console.log(err);
+          }
+          
+          deferred.resolve(null);
         });   
       }
     }

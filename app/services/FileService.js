@@ -9,7 +9,7 @@ function(uuid, pouchDB, $q, broadcastService) {
   fileService.db = pouchDB("files");
   
   //Create an index for dates
-  fileService.db.createIndex({ index: { fields: ['LastModifiedDateTime'] } })  
+  fileService.db.createIndex({ index: { name:"lastmodifiedindex", fields: ['LastModifiedDateTime'] } })  
   .then(function() {
     fileService.Ready = true;
     fileService.Broadcast.Send('FileServiceReady', null);
